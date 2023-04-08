@@ -209,10 +209,10 @@ np.seterr(invalid='ignore')
 
 # Estimo el valor de sigma usando pca_noise_estimate a partir de mi esquema de difusion y
 # mi volumen concatenado
-# sigma = pca_noise_estimate(dwi_raw_concat, gtab, correct_bias=True, smooth=3)
+sigma = pca_noise_estimate(dwi_raw_concat, gtab, correct_bias=True, smooth=3)
 
 # Realizo el denoising con mi volumen y el sigma que acabo de obtener# Estos son 
-# local_pca_dwi = localpca(dwi_raw_concat, sigma, tau_factor=2.3, patch_radius=2, pca_method='svd')
+local_pca_dwi = localpca(dwi_raw_concat, sigma, tau_factor=2.3, patch_radius=2, pca_method='svd')
 
 
 # In[ ]:
@@ -220,10 +220,10 @@ np.seterr(invalid='ignore')
 
 # Importo `gibbs_removal` y la uso para realizar el unringing en el volumen sin ruido
 from dipy.denoise.gibbs import gibbs_removal
-# dwi_gibbs_vol = gibbs_removal(local_pca_dwi)
+dwi_gibbs_vol = gibbs_removal(local_pca_dwi)
 
 # Creo un directorio en donde guardar los outputs del preproceso
-# run('mkdir preprocessing', shell=True)
+run('mkdir preprocessing', shell=True)
 
 # Creo tres directorios, el primero es para guardar la imagen concatenada sin preprocesar
 # el segundo es para guardar la imagen concatenada sin local_pca
@@ -355,7 +355,8 @@ gibbs_nii = dwi_gibbs_path + '.nii.gz'
 
 
 # Corro eddy
-run('dwifslpreproc' +' '+ gibbs_nii +' '+ topup_out_nii + ' -pe_dir' + ' AP' + ' -rpe_pair' + ' -se_epi ' +' '+ bzero_pair_nii +' '+ ' -eddy_options ' + ' " --flm=linear " ' + '-grad ' + gtab_path, shell=True)
+run('dwifslpreproc' +' '+ gibbs_nii +' '+ topup_out_nii + ' -pe_dir' + ' AP' + ' -rpe_pair' + ' -se_epi ' +' '+ bzero_pair_nii +' '+ ' -eddy_options ' + ' " --flm=linear " ' +
+    '-fslgrad ' + dwi_c_bvec + ' ' + dwi_c_bval + ' ' + dwi_c_bvec, shell=True)
 
 
 # In[13]:
